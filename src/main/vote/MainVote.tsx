@@ -1,18 +1,19 @@
 "use client";
 
 import { useVotingStore } from "@/store/VotingStore";
-// ...existing code...
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useUser } from "@clerk/nextjs";
+import { useState, useEffect } from "react";
 
 import Image from "next/image";
 
-const CandidateCard = ({ candidate, onVote }: { candidate: { id: string; name: string; image: string; votes: number }, onVote: (id: string) => void }) => {
+const CandidateCard = ({ candidate, onVote, isSignedIn, hasVoted, votedCandidateId }: { candidate: { id: string; name: string; image: string; votes: number }, onVote: (id: string) => void, isSignedIn: boolean, hasVoted: boolean, votedCandidateId: string | null }) => {
   const empCode = candidate.id.padEnd(7, "0");
   // Extraction du parti politique entre parenthèses
   const match = candidate.name.match(/\(([^)]+)\)/);
   const parti = match ? match[1] : "";
+  const voted = hasVoted && votedCandidateId === candidate.id;
   return (
     <div style={{
       display: "flex",
@@ -34,20 +35,21 @@ const CandidateCard = ({ candidate, onVote }: { candidate: { id: string; name: s
         <div style={{ fontSize: 15, color: "#555", marginBottom: 18 }}>Partis Politique : <span style={{ fontWeight: 500 }}>{parti}</span></div>
         <div style={{ display: "flex", justifyContent: "center" }}>
           <button
-            onClick={() => onVote(candidate.id)}
+            onClick={() => isSignedIn && !hasVoted && onVote(candidate.id)}
             style={{
               padding: "8px 32px",
-              background: "#1976d2",
+              background: voted ? "#43a047" : isSignedIn && !hasVoted ? "#1976d2" : "#ccc",
               color: "#fff",
               border: "none",
               borderRadius: 8,
               fontWeight: 600,
               fontSize: 15,
-              cursor: "pointer",
+              cursor: isSignedIn && !hasVoted ? "pointer" : "not-allowed",
               boxShadow: "0 2px 6px rgba(25,118,210,0.08)"
             }}
+            disabled={!isSignedIn || hasVoted}
           >
-            Voter
+            {voted ? "Merci pour votre vote" : isSignedIn && !hasVoted ? "Voter" : "Connectez-vous pour voter"}
           </button>
         </div>
       </div>
@@ -58,15 +60,37 @@ const CandidateCard = ({ candidate, onVote }: { candidate: { id: string; name: s
 const MainVote = () => {
   const { candidates, voteForCandidate } = useVotingStore();
   const { user } = useUser();
+  const isSignedIn = !!user;
+  // Stocker si l'utilisateur a déjà voté pour un candidat (persisté par user.id)
+  const [hasVoted, setHasVoted] = useState(false);
+  const [votedCandidateId, setVotedCandidateId] = useState<string | null>(null);
+
+  // Vérifier dans localStorage si l'utilisateur a déjà voté (persistant par user.id)
+  useEffect(() => {
+    if (user) {
+      const voted = localStorage.getItem(`voted_${user.id}`);
+      if (voted) {
+        setHasVoted(true);
+        setVotedCandidateId(voted);
+      }
+    }
+  }, [user]);
+
   const handleVote = (candidateId: string) => {
-    const voterName = user?.firstName || user?.username || "Utilisateur";
-    const candidate = candidates.find(c => c.id === candidateId);
-    voteForCandidate(candidateId, voterName);
-    toast.success(`${voterName} a voté pour le candidat ${candidate?.name.split(' (')[0]}`);
+    if (!isSignedIn) return;
+    if (hasVoted) {
+      toast.error("Vous avez déjà voté pour un candidat !");
+      return;
+    }
+    voteForCandidate(candidateId);
+    setHasVoted(true);
+    setVotedCandidateId(candidateId);
+    localStorage.setItem(`voted_${user.id}`, candidateId);
+    toast.success("Vote soumis avec succès !");
   };
+
   return (
     <div style={{ maxWidth: 900, margin: "0 auto", padding: "32px 0" }}>
-      <ToastContainer position="top-right" autoClose={4000} hideProgressBar={false} newestOnTop closeOnClick pauseOnHover theme="colored" />
       <div style={{ marginBottom: 32, textAlign: "left" }}>
         <button
           onClick={() => window.location.href = "/mainpage"}
@@ -87,9 +111,22 @@ const MainVote = () => {
       </div>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 32, justifyContent: "center" }}>
         {candidates.map((candidate) => (
-          <CandidateCard key={candidate.id} candidate={candidate} onVote={handleVote} />
+          <CandidateCard
+            key={candidate.id}
+            candidate={candidate}
+            onVote={handleVote}
+            isSignedIn={isSignedIn && !hasVoted}
+            hasVoted={hasVoted}
+            votedCandidateId={votedCandidateId}
+          />
         ))}
       </div>
+      {hasVoted && votedCandidateId && (
+        <div style={{ marginTop: 24, textAlign: "center", color: "#1976d2", fontWeight: 600 }}>
+          Merci pour votre vote ! Vous avez voté pour : {candidates.find(c => c.id === votedCandidateId)?.name.split(" (")[0]}
+        </div>
+      )}
+      <ToastContainer position="top-right" autoClose={4000} hideProgressBar={false} newestOnTop closeOnClick pauseOnHover theme="colored" />
     </div>
   );
 };

@@ -3,15 +3,16 @@
 import { SignedIn, UserButton } from "@clerk/nextjs";
 import Link from "next/link";
 import Image from "next/image";
-// ...existing code...
 import { useState } from "react";
 import { useVotingStore } from "@/store/VotingStore";
 import { FaQuestionCircle, FaUserCircle } from "react-icons/fa";
+import MainBar from "../bar/MainBar";
 
 // On utilise le type du store
 
 export default function MainNavbar() {
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [menuOpen, setMenuOpen] = useState(false);
   const candidates = useVotingStore((state) => state.candidates);
   // Suppression de la logique de notification
   const filteredCandidates = searchQuery.trim() === ""
@@ -55,14 +56,29 @@ export default function MainNavbar() {
     );
   }
 
+  const navItems = [
+    { name: "Dashboard", path: "/dashboard", icon: "🏠" },
+    { name: "Vote", path: "/vote", icon: "🗳" },
+    { name: "Visitors Guideline", path: "/guide", icon: "📘" },
+    { name: "Settings", path: "/params", icon: "⚙" },
+  ];
+
   return (
     <nav className="w-full flex items-center justify-between px-4 py-3 bg-white shadow-sm sticky top-0 z-50">
       {/* Logo */}
       <div className="flex items-center gap-2">
-        <span className="bg-blue-500 text-white font-bold px-2 py-1 rounded-full">i</span>
-        <span className="text-xl font-bold text-blue-700">VOTE</span>
+        <Image src="/Voting.jpg" alt="Logo Voting" width={40} height={40} className="rounded-full object-cover" />
       </div>
-
+      {/* Toggle Menu (mobile only) */}
+      <button
+        className="md:hidden flex flex-col justify-center items-center w-10 h-10 rounded-full bg-white text-blue-600 border border-blue-200 shadow focus:outline-none"
+        aria-label="Toggle menu"
+        onClick={() => setMenuOpen((open) => !open)}
+      >
+        <span className={`block w-6 h-0.5 bg-blue-600 mb-1 transition-all duration-300 ${menuOpen ? 'rotate-45 translate-y-2' : ''}`}></span>
+        <span className={`block w-6 h-0.5 bg-blue-600 mb-1 transition-all duration-300 ${menuOpen ? 'opacity-0' : ''}`}></span>
+        <span className={`block w-6 h-0.5 bg-blue-600 transition-all duration-300 ${menuOpen ? '-rotate-45 -translate-y-2' : ''}`}></span>
+      </button>
       {/* Search bar */}
       <div className="relative w-1/3 max-md:w-1/2 max-sm:w-[60%]">
         <input
@@ -88,6 +104,15 @@ export default function MainNavbar() {
           </ul>
         )}
       </div>
+      {/* NavItems sous la barre de recherche (desktop only) */}
+      <div className="hidden md:flex gap-4 mt-2">
+        {navItems.map((item) => (
+          <Link key={item.name} href={item.path} className="flex items-center gap-1 px-3 py-2 rounded-lg text-blue-700 hover:bg-blue-100 font-semibold text-sm">
+            <span className="text-lg">{item.icon}</span>
+            {item.name}
+          </Link>
+        ))}
+      </div>
 
       {/* Icons + Profile */}
       <div className="flex items-center gap-4">
@@ -102,6 +127,22 @@ export default function MainNavbar() {
           </SignedIn>
         </div>
       </div>
+      {/* MainBar overlay for mobile */}
+      {menuOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-40 z-[200] md:hidden" onClick={() => setMenuOpen(false)}>
+          <div className="absolute left-0 top-0 h-full w-64 bg-white shadow-lg p-6" onClick={e => e.stopPropagation()}>
+            {/* NavItems dans le menu Toggle mobile */}
+            <nav className="flex flex-col gap-6 mt-8">
+              {navItems.map((item) => (
+                <Link key={item.name} href={item.path} className="flex items-center gap-2 px-4 py-3 rounded-lg text-blue-700 hover:bg-blue-100 font-bold text-base">
+                  <span className="text-xl">{item.icon}</span>
+                  {item.name}
+                </Link>
+              ))}
+            </nav>
+          </div>
+        </div>
+      )}
     </nav>
   );
 }

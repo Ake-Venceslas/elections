@@ -2,8 +2,10 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { useState } from "react";
 
 export default function HeaderComponent() {
+  const [menuOpen, setMenuOpen] = useState(false);
   const navLinks = [
     { label: "Home", href: "/" },
     { label: "About", href: "/about" },
@@ -13,8 +15,7 @@ export default function HeaderComponent() {
 
   return (
     <header className="bg-gradient-to-r from-indigo-500 to-blue-500 shadow-lg">
-      <div className="container mx-auto flex items-center justify-between py-4 px-6">
-        
+      <div className="container mx-auto flex items-center justify-between py-4 px-6 relative">
         {/* Logo */}
         <motion.div
           initial={{ opacity: 0, x: -30 }}
@@ -22,14 +23,25 @@ export default function HeaderComponent() {
           transition={{ duration: 0.6 }}
           className="text-white font-bold text-xl flex items-center gap-2"
         >
-            <img
-                src="/Voting.jpg"
-                alt="Logo"
-                className="w-8 h-8 rounded-full"
-            />
+          <img
+            src="/Voting.jpg"
+            alt="Logo"
+            className="w-8 h-8 rounded-full"
+          />
         </motion.div>
 
-        {/* Navigation Links */}
+        {/* Toggle Menu (mobile only) */}
+        <button
+          className="md:hidden flex flex-col justify-center items-center w-10 h-10 rounded-full bg-white text-blue-600 border border-blue-200 shadow focus:outline-none"
+          aria-label="Toggle navigation"
+          onClick={() => setMenuOpen((open) => !open)}
+        >
+          <span className={`block w-6 h-0.5 bg-blue-600 mb-1 transition-all duration-300 ${menuOpen ? 'rotate-45 translate-y-2' : ''}`}></span>
+          <span className={`block w-6 h-0.5 bg-blue-600 mb-1 transition-all duration-300 ${menuOpen ? 'opacity-0' : ''}`}></span>
+          <span className={`block w-6 h-0.5 bg-blue-600 transition-all duration-300 ${menuOpen ? '-rotate-45 -translate-y-2' : ''}`}></span>
+        </button>
+
+        {/* Navigation Links - Desktop */}
         <motion.nav
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -40,14 +52,28 @@ export default function HeaderComponent() {
             <Link
               key={link.href}
               href={link.href}
-              className={`hover:underline underline-offset-4 ${
-                index === 3 ? "font-semibold" : ""
-              }`}
+              className={`hover:underline underline-offset-4 ${index === 3 ? "font-semibold" : ""}`}
             >
               {link.label}
             </Link>
           ))}
         </motion.nav>
+
+        {/* Navigation Links - Mobile */}
+        {menuOpen && (
+          <nav className="absolute top-16 left-0 w-full bg-white shadow-lg rounded-b-xl flex flex-col items-center py-4 z-50 md:hidden animate-fade-in">
+            {navLinks.map((link, index) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`w-full text-center py-2 text-blue-600 hover:bg-blue-50 ${index === 3 ? "font-semibold" : ""}`}
+                onClick={() => setMenuOpen(false)}
+              >
+                {link.label}
+              </Link>
+            ))}
+          </nav>
+        )}
 
         {/* Auth Buttons */}
         <motion.div

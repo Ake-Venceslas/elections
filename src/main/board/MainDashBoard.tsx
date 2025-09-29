@@ -54,49 +54,63 @@ const MainDashboard = () => {
   };
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6">
-      <div className="mb-6 text-left">
-        <button
-          onClick={() => (window.location.href = "/mainpage")}
-          className="px-5 py-2 bg-gray-200 text-gray-800 rounded-lg font-semibold text-base hover:bg-gray-300 transition"
-        >
-          Return
-        </button>
-      </div>
-      {/* Greeting */}
-      <h1 className="text-2xl font-bold">
-        Hello, <span className="text-green-600">{user?.firstName || user?.username || "Utilisateur"}</span>!
-      </h1>
-      <p className="text-gray-600">Welcome to MboaVote Online Voting System</p>
-
-      {/* Calendar */}
-      <div className="bg-white shadow p-4 rounded-lg w-fit">
-        <h2 className="font-semibold mb-2">Calendar</h2>
-        <p className="text-lg font-bold">{currentDate.format("MMMM DD, YYYY")}</p>
-      </div>
-
-      {/* Live Results */}
-      <div className="bg-white shadow p-4 rounded-lg">
-        <h2 className="font-semibold mb-4">Live Results</h2>
-        <Bar key={candidates.map((c) => c.votes).join("-")} data={chartData} options={chartOptions} />
-      </div>
-
-      {/* Voting Process */}
-      <div className="bg-white shadow p-4 rounded-lg space-y-4">
-        <div className="text-center">
-          <p className="text-2xl font-bold">{totalVoters}</p>
-          <p className="text-gray-500">Total number of registered voters</p>
+    <>
+      <div className="p-6 max-w-7xl mx-auto space-y-6">
+        {/* Reset Votes Button */}
+        <div className="mb-6 text-left flex gap-4">
+          <button
+            onClick={() => (window.location.href = "/mainpage")}
+            className="px-5 py-2 bg-gray-200 text-gray-800 rounded-lg font-semibold text-base hover:bg-gray-300 transition"
+          >
+            Return
+          </button>
         </div>
-        <div className="text-center">
-          <p className="text-2xl font-bold">{totalVotes}</p>
-          <p className="text-gray-500">Total number of votes</p>
+        {/* Greeting */}
+        <h1 className="text-2xl font-bold">
+          Hello, <span className="text-green-600">{user?.firstName || user?.username || "Utilisateur"}</span>!
+        </h1>
+        <p className="text-gray-600">Welcome to MboaVote Online Voting System</p>
+
+        {/* Calendar */}
+        <div className="bg-white shadow p-4 rounded-lg w-fit">
+          <h2 className="font-semibold mb-2">Calendar</h2>
+          <p className="text-lg font-bold">{currentDate.format("MMMM DD, YYYY")}</p>
         </div>
-        <div className="text-center">
-          <p className="text-2xl font-bold">{totalCandidates}</p>
-          <p className="text-gray-500">Total number of registered candidates</p>
+
+        {/* Live Results */}
+        <div className="bg-white shadow p-4 rounded-lg">
+          <h2 className="font-semibold mb-4">Live Results</h2>
+          <Bar key={candidates.map((c) => c.votes).join("-")} data={chartData} options={chartOptions} />
+        </div>
+
+        {/* Voting Process */}
+        <div className="bg-white shadow p-4 rounded-lg space-y-4">
+          {/*
+          <div className="text-center">
+            <p className="text-2xl font-bold">{totalVoters}</p>
+            <p className="text-gray-500">Total number of registered voters</p>
+          </div>
+          */}
+          <div className="text-center">
+            <p className="text-2xl font-bold">{totalVotes}</p>
+            <p className="text-gray-500">Total number of votes</p>
+          </div>
+          <div className="text-center">
+            <p className="text-2xl font-bold">{totalCandidates}</p>
+            <p className="text-gray-500">Total number of registered candidates</p>
+          </div>
         </div>
       </div>
-    </div>
+      {/* Bouton Reset Votes en bas à droite */}
+      {/*
+      <button
+        onClick={resetVotes}
+        className="fixed bottom-8 right-8 px-6 py-3 bg-red-500 text-white rounded-full font-bold text-base shadow-lg hover:bg-red-600 transition z-50"
+      >
+        Reset Votes
+      </button>
+      */}
+    </>
   );
 };
 

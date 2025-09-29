@@ -1,4 +1,3 @@
-import MainBar from '@/main/bar/MainBar'
 import MainHero from '@/main/hero/MainHero'
 import MainNavbar from '@/main/Navbar/MainNavbar'
 import React from 'react'
@@ -12,7 +11,7 @@ export default function Page() {
       {/* Main content area with sidebar and hero */}
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar */}
-        <MainBar />
+       
 
         {/* Main Content */}
         <div className="flex-1 overflow-auto">
