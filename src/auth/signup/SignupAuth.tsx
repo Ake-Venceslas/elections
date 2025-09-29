@@ -62,9 +62,10 @@ export default function SignUpPage() {
 
       // Redirect to verification page
       router.push('/email');
-    } catch (err: any) {
+  } catch (err: unknown) {
       console.error(JSON.stringify(err, null, 2));
-      setError(err.errors[0].longMessage || 'Une erreur est survenue lors de l\'inscription');
+  const errorObj = err as { errors?: { longMessage?: string }[] };
+  setError(errorObj.errors?.[0]?.longMessage || 'Une erreur est survenue lors de l\'inscription');
     } finally {
       setIsLoading(false);
     }
@@ -188,7 +189,7 @@ export default function SignUpPage() {
                 </div>
                 <div className="ml-3 text-sm">
                   <label htmlFor="agreeToTerms" className="text-gray-700">
-                    J'accepte les Conditions d'Utilisation et la Politique de Confidentialité d'iVote
+                    J&apos;accepte les Conditions d&apos;Utilisation et la Politique de Confidentialité d&apos;iVote
                   </label>
                 </div>
               </div>

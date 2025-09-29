@@ -65,20 +65,21 @@ export default function VerifyEmailPage() {
       } else {
         setError("Échec de la vérification. Statut: " + result.status);
       }
-    } catch (err: any) {
+  } catch (err: unknown) {
       console.error("Erreur de vérification:", err);
       
       // Gestion spécifique des erreurs Clerk
       if (err && typeof err === 'object') {
-        if (err.errors && Array.isArray(err.errors) && err.errors.length > 0) {
-          setError(err.errors[0].message || "Erreur de vérification");
-        } else if (err.message) {
-          setError(err.message);
+  const errorObj = err as { errors?: { message?: string }[]; message?: string };
+        if (errorObj.errors && Array.isArray(errorObj.errors) && errorObj.errors.length > 0) {
+          setError(errorObj.errors[0].message || "Erreur de vérification");
+        } else if (errorObj.message) {
+          setError(errorObj.message);
         } else {
           setError("Erreur inconnue lors de la vérification");
         }
       } else {
-        setError("Une erreur inattendue s'est produite");
+        setError("Une erreur inattendue s&apos;est produite");
       }
     } finally {
       setIsLoading(false);
@@ -94,7 +95,7 @@ export default function VerifyEmailPage() {
       });
       setTimeLeft(599);
       setError('');
-    } catch (err: any) {
+  } catch (err: unknown) {
       setError("Impossible d'envoyer un nouveau code");
     }
   };
@@ -167,7 +168,7 @@ export default function VerifyEmailPage() {
                 </p>
                 
                 <p className="text-center">
-                  Vous n'avez pas reçu le code?{' '}
+                  Vous n&apos;avez pas reçu le code?{' '}
                   <button
                     type="button"
                     onClick={handleResendCode}

@@ -58,7 +58,7 @@ export default function SignInPage() {
       } else {
         setError("Échec de la connexion. Statut: " + result.status);
       }
-    } catch (err: any) {
+  } catch (err: unknown) {
       console.error("Erreur de connexion:", err);
 
       if (err && typeof err === "object") {
