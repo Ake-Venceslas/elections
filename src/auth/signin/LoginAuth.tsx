@@ -62,10 +62,11 @@ export default function SignInPage() {
       console.error("Erreur de connexion:", err);
 
       if (err && typeof err === "object") {
-        if (err.errors && Array.isArray(err.errors) && err.errors.length > 0) {
-          setError(err.errors[0].message || "Erreur de connexion");
-        } else if (err.message) {
-          setError(err.message);
+        const errorObj = err as { errors?: { message?: string }[]; message?: string };
+        if (errorObj.errors && Array.isArray(errorObj.errors) && errorObj.errors.length > 0) {
+          setError(errorObj.errors[0].message || "Erreur de connexion");
+        } else if (errorObj.message) {
+          setError(errorObj.message);
         } else {
           setError("Email ou mot de passe incorrect");
         }

@@ -1,3 +1,4 @@
+import Image from "next/image";
 "use client";
 
 import React from "react";
@@ -51,11 +52,13 @@ export default function AboutComponents() {
             key={member.name}
             className="bg-blue-50 rounded-xl shadow p-4 flex flex-col items-center border border-gray-200"
           >
-            <img
-              src={member.image}
-              alt={member.name}
-              className="w-28 h-28 object-cover rounded-full mb-4"
-            />
+              <Image
+                src={member.image}
+                alt={member.name}
+                width={112}
+                height={112}
+                className="w-28 h-28 object-cover rounded-full mb-4"
+              />
             <h4 className="font-semibold">{member.name}</h4>
             <p className="text-gray-500">{member.role}</p>
           </div>

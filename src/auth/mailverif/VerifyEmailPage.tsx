@@ -58,29 +58,14 @@ export default function VerifyEmailPage() {
       if (result.status === 'complete') {
         // Mise à jour de la session
         await setActive({ session: result.createdSessionId });
-        
         // Redirection vers la page principale
-        // Clerk redirige automatiquement normalement, mais on force au cas où
         router.push('/mainpage');
       } else {
         setError("Échec de la vérification. Statut: " + result.status);
       }
-  } catch (err: unknown) {
-      console.error("Erreur de vérification:", err);
-      
-      // Gestion spécifique des erreurs Clerk
-      if (err && typeof err === 'object') {
-  const errorObj = err as { errors?: { message?: string }[]; message?: string };
-        if (errorObj.errors && Array.isArray(errorObj.errors) && errorObj.errors.length > 0) {
-          setError(errorObj.errors[0].message || "Erreur de vérification");
-        } else if (errorObj.message) {
-          setError(errorObj.message);
-        } else {
-          setError("Erreur inconnue lors de la vérification");
-        }
-      } else {
-        setError("Une erreur inattendue s&apos;est produite");
-      }
+    } catch {
+      console.error("Erreur de vérification");
+      setError("Erreur inconnue lors de la vérification");
     } finally {
       setIsLoading(false);
     }
