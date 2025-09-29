@@ -1,6 +1,6 @@
-const Candidate = require("../models/Candidate");
+import Candidate from "../models/Candidate.js";
 
-exports.getResults = async (req, res) => {
+export const getResults = async (req, res) => {
   try {
     const candidates = await Candidate.find().sort({ votes: -1 });
     res.json(candidates);

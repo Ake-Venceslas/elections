@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { useSignIn, useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
@@ -188,9 +188,9 @@ export default function SignInPage() {
 
             <div className="mt-6 text-center">
               <p className="text-sm text-gray-600">
-                Vous n'avez pas de compte?{' '}
+                Vous n&apos;avez pas de compte?{' '}
                 <Link href="/register" className="font-medium text-blue-600 hover:text-blue-500 transition-colors">
-                  S'inscrire
+                  S&apos;inscrire
                 </Link>
               </p>
             </div>
