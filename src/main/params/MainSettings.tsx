@@ -23,6 +23,14 @@ const Settings = () => {
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
+      <div className="mb-6 text-left">
+        <button
+          onClick={() => window.location.href = "/mainpage"}
+          className="px-5 py-2 bg-gray-200 text-gray-800 rounded-lg font-semibold text-base hover:bg-gray-300 transition"
+        >
+          Return
+        </button>
+      </div>
       <h1 className="text-2xl font-bold text-blue-800 mb-8">SETTINGS</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10">

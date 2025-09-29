@@ -23,7 +23,7 @@ export default function HeaderComponent() {
           className="text-white font-bold text-xl flex items-center gap-2"
         >
             <img
-                src="/logo.jpg"
+                src="/Voting.jpg"
                 alt="Logo"
                 className="w-8 h-8 rounded-full"
             />

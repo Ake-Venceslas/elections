@@ -1,205 +1,230 @@
-"use client";
+'use client';
 
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
-import { Eye, EyeOff } from "lucide-react"; // eye icons
+import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { useSignUp } from '@clerk/nextjs';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
-// Route de redirection après succès
-const REDIRECT_TO = "/mainpage";
-
-export default function SignupAuth() {
+export default function SignUpPage() {
+  const { isLoaded, signUp } = useSignUp();
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    email: '',
+    username: '',
+    password: '',
+    confirmPassword: '',
+    agreeToTerms: false
+  });
+  const [error, setError] = useState('');
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [agree, setAgree] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value, type, checked } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
+    setIsLoading(true);
+    setError('');
 
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
+    if (!isLoaded) return;
+
+    // Basic validation
+    if (formData.password !== formData.confirmPassword) {
+      setError("Les mots de passe ne correspondent pas");
+      setIsLoading(false);
       return;
     }
-    if (!agree) {
-      setError("You must agree to the Terms and Privacy Policy");
+
+    if (!formData.agreeToTerms) {
+      setError("Vous devez accepter les conditions d'utilisation");
+      setIsLoading(false);
       return;
     }
 
     try {
-      setLoading(true);
-
-      // Appel à ton backend Express/MongoDB
-      const res = await fetch("http://localhost:5000/api/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+      // Start the sign-up process using the email as identifier
+      await signUp.create({
+        emailAddress: formData.email,
+        password: formData.password,
+        username: formData.username,
       });
 
-      const data = await res.json();
+      // Send the user an email with the verification code
+      await signUp.prepareEmailAddressVerification({
+        strategy: "email_code",
+      });
 
-      if (!res.ok) {
-        throw new Error(data.message || "Registration failed");
-      }
-
-      // Sauvegarde du token (optionnel mais utile pour rester connecté)
-      localStorage.setItem("token", data.token);
-
-      // Redirection vers la page principale
-      router.replace(REDIRECT_TO);
+      // Redirect to verification page
+      router.push('/email');
     } catch (err: any) {
-      setError(err.message || "Something went wrong");
+      console.error(JSON.stringify(err, null, 2));
+      setError(err.errors[0].longMessage || 'Une erreur est survenue lors de l\'inscription');
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white px-4">
-      <div className="bg-white w-full max-w-md rounded-2xl shadow-lg p-8 relative overflow-hidden">
-        {/* Background stripes */}
-        <div className="absolute inset-0 flex justify-between -z-10">
-          <div className="w-1/5 bg-gradient-to-b from-indigo-800 to-indigo-400"></div>
-          <div className="w-1/5 bg-gradient-to-b from-indigo-600 to-indigo-300"></div>
-          <div className="w-1/5 bg-gradient-to-b from-indigo-500 to-indigo-200"></div>
-          <div className="w-1/5 bg-gradient-to-b from-indigo-400 to-indigo-200"></div>
-          <div className="w-1/5 bg-gradient-to-b from-indigo-800 to-indigo-400"></div>
-        </div>
-
-        {/* Logo */}
-        <div className="flex justify-center mb-6">
-          <span className="text-3xl font-bold text-indigo-700">iVOTE</span>
-        </div>
-
-        {/* Heading */}
-        <h1 className="text-center text-2xl font-bold text-gray-800 mb-2">
-          Welcome!
-        </h1>
-        <p className="text-center text-gray-500 text-sm mb-6">
-          Welcome to iVOTE's Online Voting System, please register as a voter to
-          vote in your preferred candidate
-        </p>
-
-        {/* Error message */}
-        {error && (
-          <div className="bg-red-100 text-red-600 p-2 rounded mb-3 text-sm">
-            {error}
-          </div>
-        )}
-
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Email */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Email
-            </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Enter your email"
-              required
-              className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
-          </div>
-
-          {/* Password */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Create password
-            </label>
-            <div className="relative">
-              <input
-                type={showPassword ? "text" : "password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Password"
-                required
-                className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 pr-10"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden"
+      >
+        <div className="p-1 bg-gradient-to-r from-blue-500 to-purple-600">
+          <div className="bg-white rounded-xl p-8">
+            <div className="text-center mb-8">
+              <motion.div 
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+                className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4"
               >
-                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
+                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                </svg>
+              </motion.div>
+              <h1 className="text-2xl font-bold text-gray-900">Bienvenue sur iVote</h1>
+              <p className="text-gray-600 mt-2">Système de vote en ligne - Inscrivez-vous pour voter pour votre candidat préféré</p>
             </div>
-          </div>
 
-          {/* Confirm Password */}
-          <div>
-            <div className="relative">
-              <input
-                type={showConfirmPassword ? "text" : "password"}
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Confirm Password"
-                required
-                className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 pr-10"
-              />
-              <button
-                type="button"
-                onClick={() =>
-                  setShowConfirmPassword(!showConfirmPassword)
-                }
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
+                  Nom d&apos;utilisateur
+                </label>
+                <input
+                  type="text"
+                  id="username"
+                  name="username"
+                  value={formData.username}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                  placeholder="Entrez votre nom d'utilisateur"
+                  required
+                />
+              </div>
+              {error && (
+                <motion.div 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="bg-red-50 text-red-700 p-3 rounded-lg text-sm"
+                >
+                  {error}
+                </motion.div>
+              )}
+
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                  Adresse email
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                  placeholder="Entrez votre adresse email"
+                  required
+                />
+              </div>
+
+              <div>
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+                  Créer un mot de passe
+                </label>
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                  placeholder="Créez votre mot de passe"
+                  required
+                />
+              </div>
+
+              <div>
+                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
+                  Confirmer le mot de passe
+                </label>
+                <input
+                  type="password"
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                  placeholder="Confirmez votre mot de passe"
+                  required
+                />
+              </div>
+
+              {/* Élément CAPTCHA requis par Clerk */}
+              <div id="clerk-captcha" className="min-h-[78px] flex items-center justify-center">
+                {/* Le widget CAPTCHA de Clerk sera injecté ici automatiquement */}
+              </div>
+
+              <div className="flex items-start">
+                <div className="flex items-center h-5">
+                  <input
+                    id="agreeToTerms"
+                    name="agreeToTerms"
+                    type="checkbox"
+                    checked={formData.agreeToTerms}
+                    onChange={handleChange}
+                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                    required
+                  />
+                </div>
+                <div className="ml-3 text-sm">
+                  <label htmlFor="agreeToTerms" className="text-gray-700">
+                    J'accepte les Conditions d'Utilisation et la Politique de Confidentialité d'iVote
+                  </label>
+                </div>
+              </div>
+
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                type="submit"
+                disabled={isLoading}
+                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-4 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 transition-colors"
               >
-                {showConfirmPassword ? (
-                  <EyeOff size={18} />
+                {isLoading ? (
+                  <span className="flex items-center justify-center">
+                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Traitement...
+                  </span>
                 ) : (
-                  <Eye size={18} />
+                  "S'INSCRIRE"
                 )}
-              </button>
+              </motion.button>
+            </form>
+
+            <div className="mt-6 text-center">
+              <p className="text-sm text-gray-600">
+                Vous avez déjà un compte?{' '}
+                <Link href="/signin" className="font-medium text-blue-600 hover:text-blue-500 transition-colors">
+                  Se connecter
+                </Link>
+              </p>
             </div>
           </div>
-
-          {/* Terms */}
-          <div className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={agree}
-              onChange={(e) => setAgree(e.target.checked)}
-              className="w-4 h-4 text-indigo-500"
-            />
-            <span>
-              I agree to LOCO's{" "}
-              <a href="#" className="text-indigo-600 hover:underline">
-                Terms and Service
-              </a>{" "}
-              and{" "}
-              <a href="#" className="text-indigo-600 hover:underline">
-                Privacy Policy
-              </a>
-            </span>
-          </div>
-
-          {/* Register Button */}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-gradient-to-r from-indigo-500 to-indigo-700 text-white py-2 rounded-lg hover:opacity-90"
-          >
-            {loading ? "Registering..." : "REGISTER"}
-          </button>
-        </form>
-
-        {/* Sign In Link */}
-        <div className="mt-4 text-center text-sm">
-          Already have an account?{" "}
-          <a href="/login" className="text-indigo-600 hover:underline">
-            Sign in
-          </a>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

@@ -1,30 +1,35 @@
 import Candidate from "../models/Candidate.js";
-import User from "../models/User.js";
+import Vote from "../models/Vote.js";
 
 // Voter pour un candidat
 export const voteForCandidate = async (req, res) => {
   try {
     const { candidateId } = req.body;
-    const userId = req.user.id; // injecté par le middleware d’auth JWT
+    const userId = req.user.id; // injecté par le middleware JWT
 
-    // Vérifier si l’utilisateur a déjà voté
-    const user = await User.findById(userId);
-    if (user.hasVoted) {
-      return res.status(400).json({ message: "You have already voted!" });
+    const currentYear = new Date().getFullYear();
+
+    // Vérifier si l’utilisateur a déjà voté dans l’année en cours
+    const existingVote = await Vote.findOne({ userId, year: currentYear });
+    if (existingVote) {
+      return res.status(400).json({ message: "Vous avez déjà voté cette année !" });
+    }
+
+    // Vérifier si le candidat existe
+    const candidate = await Candidate.findById(candidateId);
+    if (!candidate) {
+      return res.status(404).json({ message: "Candidat non trouvé" });
     }
 
     // Incrémenter les votes du candidat
-    const candidate = await Candidate.findById(candidateId);
-    if (!candidate) return res.status(404).json({ message: "Candidate not found" });
-
     candidate.votes += 1;
     await candidate.save();
 
-    // Marquer l’utilisateur comme ayant voté
-    user.hasVoted = true;
-    await user.save();
+    // Enregistrer le vote (lié à l’année en cours)
+    const vote = new Vote({ userId, candidateId, year: currentYear });
+    await vote.save();
 
-    res.json({ message: "Vote successful", candidate });
+    res.json({ message: "Vote enregistré avec succès", candidate });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

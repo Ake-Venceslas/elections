@@ -1,7 +1,3 @@
-import express from "express";
-import dotenv from "dotenv";
-import connectDB from "./config/db.js";
-
 const express = require("express");
 const dotenv = require("dotenv");
 const connectDB = require("./config/db");
@@ -17,10 +13,12 @@ app.use(cors());
 app.use(express.json());
 
 // Routes
-app.use("/api/auth", require("./routes/authRoutes"));
-app.use("/api/votes", require("./routes/voteRoutes"));
-app.use("/api/results", require("./routes/resultRoutes")); // <-- On doit créer ce fichier
-app.use(express.json());
+app.use("/api/auth", require("./routes/authRoutes")); // Authentification
+app.use("/api/votes", require("./routes/voteRoutes")); // Votes
+app.use("/api/results", require("./routes/resultRoutes")); // Résultats
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log(🚀 Server running on http://localhost:${PORT});
+});

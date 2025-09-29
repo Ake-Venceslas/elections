@@ -16,12 +16,15 @@ export default function HeroComponent() {
           transition={{ duration: 0.6 }}
         >
           <h1 className="text-3xl md:text-4xl font-bold text-indigo-700 mb-3">
-            <span className="text-indigo-500">iVOTE</span> Online Voting System
+            <span className="text-indigo-500">MboaVote</span> Online Voting System
           </h1>
           <p className="text-gray-600 mb-6">
             Let’s make voting and elections easy for you. This is designed to ensure a secured voting session.
           </p>
-          <button className="bg-indigo-500 hover:bg-indigo-600 text-white px-5 py-2 rounded-full shadow-md transition cursor-pointer">
+          <button
+            className="bg-indigo-500 hover:bg-indigo-600 text-white px-5 py-2 rounded-full shadow-md transition cursor-pointer"
+            onClick={() => window.location.href = '/register'}
+          >
             Register as a Voter
           </button>
         </motion.div>
@@ -34,7 +37,7 @@ export default function HeroComponent() {
           className="flex justify-center"
         >
           <img
-            src="/logo.jpg"
+            src="/Voting.jpg"
             alt="Voting Illustration"
             className="w-full max-w-md"
           />

@@ -10,24 +10,24 @@ interface TeamMember {
 
 const teamMembers: TeamMember[] = [
   {
-    name: "Roderick Pastor",
+    name: "Paul Biya",
     role: "President",
-    image: "/images/roderick.jpg", // remplace par ton chemin réel
+    image: "/paul-biya.jpg", // remplace par ton chemin réel
   },
   {
-    name: "Pierce Norman Belloso",
-    role: "Vice President",
-    image: "/images/pierce.jpg",
+    name: "Joseph Dion Ngute",
+    role: "Premier Ministre",
+    image: "/Dion.jpg",
   },
   {
-    name: "Sarita Cara Lagrmay",
-    role: "Elections Director",
-    image: "/images/sarita.jpg",
+    name: "Ferdinand Ngoh Ngoh",
+    role: "Secretaire General",
+    image: "/Ngoh.jpg",
   },
   {
-    name: "Reginald Dantes",
-    role: "IT Director",
-    image: "/images/reginald.jpg",
+    name: "Samuel Mvondo Ayolo ",
+    role: "Directeur Du Cabinet Civil",
+    image: "/Ayolo.jpg",
   },
 ];
 
@@ -37,7 +37,7 @@ export default function AboutComponents() {
       {/* Titre */}
       <h2 className="text-3xl font-bold mb-2">ABOUT US</h2>
       <p className="text-xl font-semibold text-blue-700 mb-1">
-        iVOTE is an Online Voting System that is used to gather instant and trustworthy results
+        MboaVote is an Online Voting System that is used to gather instant and trustworthy results
       </p>
       <p className="text-gray-600 mb-12">
         We aim to make the voting and elections easy, seamless and fair.

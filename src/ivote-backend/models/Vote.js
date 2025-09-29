@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const voteSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
@@ -6,4 +6,7 @@ const voteSchema = new mongoose.Schema({
   year: { type: Number, required: true },
 });
 
-module.exports = mongoose.model("Vote", voteSchema);
+// ✅ Empêcher un utilisateur de voter deux fois dans la même année
+voteSchema.index({ userId: 1, year: 1 }, { unique: true });
+
+export default mongoose.model("Vote", voteSchema);

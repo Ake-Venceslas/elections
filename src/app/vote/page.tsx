@@ -1,4 +1,4 @@
-import MainBar from '@/main/bar/MainBar'
+// ...existing code...
 import MainNavbar from '@/main/Navbar/MainNavbar'
 import MainVote from '@/main/vote/MainVote'
 import React from 'react'
@@ -12,7 +12,7 @@ export default function Page() {
       {/* Main content area with sidebar and hero */}
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar */}
-        <MainBar />
+  {/* Sidebar supprimé */}
 
         {/* Main Content */}
         <div className="flex-1 overflow-auto">

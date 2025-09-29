@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useVotingStore } from "@/store/VotingStore";
+import { useUser } from '@clerk/nextjs';
 import { Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -12,30 +13,31 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import dayjs from "dayjs";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-const MainDashboard = () => {
-  const { userName, candidates, totalVoters, totalVotes, totalCandidates, voteForCandidate } =
-    useVotingStore();
+import dayjs from "dayjs";
 
+const MainDashboard = () => {
+  const { user } = useUser();
   const [currentDate, setCurrentDate] = useState(dayjs());
+  const { candidates, totalVoters, totalVotes, totalCandidates, resetVotes } = useVotingStore();
 
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentDate(dayjs());
-    }, 1000 * 60 * 60);
+    }, 1000);
     return () => clearInterval(timer);
   }, []);
 
+  // Prepare chart data and options
   const chartData = {
     labels: candidates.map((c) => c.name),
     datasets: [
       {
         label: "Votes",
         data: candidates.map((c) => c.votes),
-        backgroundColor: "#2563eb",
+        backgroundColor: "rgba(34,197,94,0.7)",
       },
     ],
   };
@@ -44,21 +46,28 @@ const MainDashboard = () => {
     responsive: true,
     plugins: {
       legend: { display: false },
-      title: { display: true, text: "President Student Council" },
+      title: { display: true, text: "Live Voting Results" },
     },
     scales: {
-      x: { ticks: { autoSkip: false } },
       y: { beginAtZero: true },
     },
   };
 
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">
+      <div className="mb-6 text-left">
+        <button
+          onClick={() => (window.location.href = "/mainpage")}
+          className="px-5 py-2 bg-gray-200 text-gray-800 rounded-lg font-semibold text-base hover:bg-gray-300 transition"
+        >
+          Return
+        </button>
+      </div>
       {/* Greeting */}
       <h1 className="text-2xl font-bold">
-        Hello, <span className="text-blue-600">{userName}</span>!
+        Hello, <span className="text-green-600">{user?.firstName || user?.username || "Utilisateur"}</span>!
       </h1>
-      <p className="text-gray-600">Welcome to IVOTE Online Voting System</p>
+      <p className="text-gray-600">Welcome to MboaVote Online Voting System</p>
 
       {/* Calendar */}
       <div className="bg-white shadow p-4 rounded-lg w-fit">
@@ -69,7 +78,7 @@ const MainDashboard = () => {
       {/* Live Results */}
       <div className="bg-white shadow p-4 rounded-lg">
         <h2 className="font-semibold mb-4">Live Results</h2>
-        <Bar data={chartData} options={chartOptions} />
+        <Bar key={candidates.map((c) => c.votes).join("-")} data={chartData} options={chartOptions} />
       </div>
 
       {/* Voting Process */}
@@ -87,14 +96,6 @@ const MainDashboard = () => {
           <p className="text-gray-500">Total number of registered candidates</p>
         </div>
       </div>
-
-      {/* Test button */}
-      <button
-        onClick={() => voteForCandidate("c2")}
-        className="px-4 py-2 bg-green-600 text-white rounded-lg"
-      >
-        Simulate Vote for Candidate 2
-      </button>
     </div>
   );
 };

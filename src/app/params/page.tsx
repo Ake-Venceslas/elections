@@ -1,4 +1,4 @@
-import MainBar from '@/main/bar/MainBar'
+// ...existing code...
 import MainNavbar from '@/main/Navbar/MainNavbar'
 import MainSettings from '@/main/params/MainSettings'
 import React from 'react'
@@ -14,7 +14,7 @@ export default function Page() {
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar */}
 
-        <MainBar />
+  {/* Sidebar supprimé */}
 
         {/* Main Content */}
         <div className="flex-1 overflow-auto">
