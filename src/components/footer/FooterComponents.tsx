@@ -26,9 +26,9 @@ export default function FooterComponent() {
           {/* Logo & Social */}
           <div>
             <h1 className="text-2xl font-bold">
-              <span className="bg-indigo-700 px-2 py-1 rounded-lg">iVOTE</span>
+              <span className="bg-indigo-700 px-2 py-1 rounded-lg">MboaVote</span>
             </h1>
-            <p className="text-sm mt-2">© Copyright 2023</p>
+            <p className="text-sm mt-2">© Copyright 2006</p>
             <div className="flex gap-3 mt-4">
               <a href="#" className="bg-white/20 hover:bg-white p-2 rounded-full transition">
                 <FaFacebookF />
@@ -64,9 +64,9 @@ export default function FooterComponent() {
           <div>
             <h3 className="font-semibold mb-3">Contact Us</h3>
             <ul className="space-y-2 text-sm">
-              <li>Address: Dagupan City, Pangasinan</li>
-              <li>Email: ivote@gmail.com</li>
-              <li>Phone No.: +63 912 345 6789</li>
+              <li>Address: Douala City, Cameroon</li>
+              <li>Email: mboavote@gmail.com</li>
+              <li>Phone No.: +237 687 474 776</li>
             </ul>
           </div>
         </div>

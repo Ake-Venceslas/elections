@@ -37,7 +37,7 @@ export default function HeroComponent() {
           className="flex justify-center"
         >
           <img
-            src="/Voting.jpg"
+            src="/mboavote.jpg"
             alt="Voting Illustration"
             className="w-full max-w-md"
           />

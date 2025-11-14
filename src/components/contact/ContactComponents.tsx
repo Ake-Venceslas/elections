@@ -1,12 +1,15 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import ReCAPTCHA from "react-google-recaptcha";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 
 export default function ContactComponents() {
   const [captchaValue, setCaptchaValue] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const recaptchaRef = useRef<ReCAPTCHA | null>(null);
+  const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
   const [phone, setPhone] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -17,22 +20,40 @@ export default function ContactComponents() {
       return;
     }
 
-    // Vérifier le captcha côté serveur
-    const verifyRes = await fetch("/api/verify-captcha", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ token: captchaValue }),
-    });
+    setSubmitting(true);
+    try {
+      // Vérifier le captcha côté serveur
+      const verifyRes = await fetch("/api/verify-captcha", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: captchaValue }),
+      });
 
-    const verifyData = await verifyRes.json();
+      if (!verifyRes.ok) {
+        console.error("verify-captcha responded with status", verifyRes.status);
+        alert("CAPTCHA verification request failed (network). Please try again.");
+        return;
+      }
 
-    if (!verifyData.success) {
-      alert("CAPTCHA verification failed!");
-      return;
+      const verifyData = await verifyRes.json();
+      console.log("verify-captcha response:", verifyData);
+
+      if (!verifyData.success) {
+        alert("CAPTCHA verification failed!");
+        // reset the widget so user can try again
+        recaptchaRef.current?.reset();
+        setCaptchaValue(null);
+        return;
+      }
+
+      // Si captcha OK → continuer le traitement du formulaire
+      alert(`Form submitted!\nPhone: ${phone}`);
+    } catch (err) {
+      console.error("Error verifying captcha:", err);
+      alert("An error occurred while verifying CAPTCHA. Check console for details.");
+    } finally {
+      setSubmitting(false);
     }
-
-    // Si captcha OK → continuer le traitement du formulaire
-       alert(`Form submitted!\nPhone: ${phone}`);
   };
 
   return (
@@ -104,18 +125,26 @@ export default function ContactComponents() {
 
         {/* reCAPTCHA */}
         <div className="mb-6">
-          <ReCAPTCHA
-            sitekey="6LcvPqMrAAAAAJhEHtv_yysafaAT-95wPAPqTpXT"
-            onChange={(value) => setCaptchaValue(value)}
-          />
+          {siteKey ? (
+            <ReCAPTCHA
+              ref={(r) => { recaptchaRef.current = r; }}
+              sitekey={siteKey}
+              onChange={(value) => setCaptchaValue(value)}
+            />
+          ) : (
+            <div className="text-red-500 text-sm mt-2">
+              ReCAPTCHA site key not configured. Please set `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` in your environment.
+            </div>
+          )}
         </div>
 
         {/* Submit */}
         <button
           type="submit"
-          className="w-full py-3 rounded-full bg-gradient-to-r from-blue-600 to-blue-400 text-white font-semibold hover:opacity-90 transition"
+          disabled={submitting}
+          className={`w-full py-3 rounded-full bg-gradient-to-r from-blue-600 to-blue-400 text-white font-semibold hover:opacity-90 transition ${submitting ? "opacity-60 cursor-not-allowed" : ""}`}
         >
-          SUBMIT REQUEST
+          {submitting ? "Submitting..." : "SUBMIT REQUEST"}
         </button>
       </form>
     </section>
