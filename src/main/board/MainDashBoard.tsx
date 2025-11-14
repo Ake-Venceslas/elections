@@ -8,7 +8,15 @@ import dayjs from "dayjs";
 // ---------------------
 // Composant TopCandidates intégré
 // ---------------------
-const TopCandidates = ({ candidates }) => {
+type LocalCandidate = {
+  id: string;
+  name: string;
+  votes: number;
+  image?: string;
+  percent?: number;
+};
+
+const TopCandidates = ({ candidates }: { candidates: LocalCandidate[] }) => {
   // Calcul automatique des pourcentages en fonction du total de votes
   const totalVotes = candidates.reduce((sum, c) => sum + c.votes, 0);
 
