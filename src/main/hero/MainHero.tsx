@@ -69,7 +69,7 @@ export default function MainHero() {
         </h1>
         <p className="text-base sm:text-lg md:text-xl max-w-2xl mx-auto mb-6 sm:mb-8 text-gray-700 leading-relaxed animate-slideUp" style={{animationDelay: "0.1s"}}>
           The most reliable, transparent, and modern platform for digital elections in Africa and beyond.
-          Participate, vote, and make your voice count!
+          Participate, vote, and make your voice count.
         </p>
 
         <div className="w-full max-w-4xl mx-auto animate-scaleIn" style={{animationDelay: "0.2s"}}>
